@@ -1,4 +1,4 @@
-<center><B><font size=6>Simple graphics drawing tool software</font></B></center>
+## Simple graphics drawing tool software
 
 ### 1.环境配置
 
