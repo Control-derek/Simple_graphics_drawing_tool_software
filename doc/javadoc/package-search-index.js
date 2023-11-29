@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"File"},{"l":"Main"},{"l":"Menubar"},{"l":"Shape"},{"l":"Toolbar"},{"l":"UndoManager"},{"l":"所有程序包","u":"allpackages-index.html"}];updateSearchResults();
