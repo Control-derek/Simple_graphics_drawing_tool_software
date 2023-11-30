@@ -18,6 +18,7 @@ public class RecordStack {
      */
     private static Group group;
 
+
     /**
      * 操作记录栈
      */
@@ -38,6 +39,14 @@ public class RecordStack {
      */
     public static void setGroup(Group gp) {
         group = gp;
+    }
+
+    /**
+     * 设置{@link #group}
+     *
+     */
+    public static Group getGroup() {
+        return group;
     }
 
     /**

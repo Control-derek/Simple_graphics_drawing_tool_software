@@ -2,12 +2,8 @@ package File;
 
 import App.ShapeAttribute;
 import Shape.*;
-import UndoManager.RecordStack;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
 import java.io.File;

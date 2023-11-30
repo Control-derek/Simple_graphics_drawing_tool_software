@@ -25,9 +25,6 @@ public class App extends Application {
 
     private Stage primaryStage;
     private BorderPane rootLayout;
-
-
-    
     private RecordStack recordStack;
 
 

@@ -23,10 +23,8 @@ public class FileExport {
      * 要保存的图形组
      */
     private Group savingGroup;
-
     public FileExport() {
     }
-
     public FileExport(Group gp) {
         savingGroup = gp;
     }

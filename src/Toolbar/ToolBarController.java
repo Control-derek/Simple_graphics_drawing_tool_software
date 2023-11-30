@@ -123,7 +123,7 @@ public class ToolBarController {
     private Button tagBtn;
 
     private App app;
-
+    public static boolean first=false;
     public ToolBarController() {
     }
 
@@ -132,6 +132,7 @@ public class ToolBarController {
      */
     @FXML
     private void initialize() {
+        first = false;
         SizeSlider.setValue(ShapeAttribute.getSize());
         label.setText(String.valueOf(ShapeAttribute.getSize()));
         StrokeCP.setValue(ShapeAttribute.getStrokeColor());
@@ -183,32 +184,87 @@ public class ToolBarController {
         });
         setIcon("/left_align.png",leftAlignBtn);
         leftAlignBtn.setOnMouseClicked((e) -> {
+
             ShapeAttribute.setTool("LEFT");
+            if(!first)
+            {System.out.println("开始选择要操作的对象！");
+                first = true;
+            }
+            else
+            {
+                System.out.println("选择好了，请再按一次白板开始对齐，注意不要按对象！");
+                first=false;
+            }
             System.out.println(ShapeAttribute.getTool());
         });
         setIcon("/right_align.png",rightAlignBtn);
         rightAlignBtn.setOnMouseClicked((e) -> {
             ShapeAttribute.setTool("RIGHT");
+            if(!first)
+            {System.out.println("开始选择要操作的对象！");
+                first = true;
+            }
+            else
+            {
+                System.out.println("选择好了，请再按一次白板开始对齐，注意不要按对象！");
+                first=false;
+            }
             System.out.println(ShapeAttribute.getTool());
         });
         setIcon("/center_hor.png",centerHorBtn);
         centerHorBtn.setOnMouseClicked((e) -> {
             ShapeAttribute.setTool("CENHOR");
+            if(!first)
+            {System.out.println("水平居中开始选择要操作的对象！");
+                first = true;
+            }
+            else
+            {
+                System.out.println("选择好了，请再按一次白板开始对齐，注意不要按对象！");
+                first=false;
+            }
             System.out.println(ShapeAttribute.getTool());
         });
         setIcon("/top_align.png",topAlignBtn);
         topAlignBtn.setOnMouseClicked((e) -> {
             ShapeAttribute.setTool("TOP");
+            if(!first)
+            {System.out.println("开始选择要操作的对象！");
+                first = true;
+            }
+            else
+            {
+                System.out.println("选择好了，请再按一次白板开始对齐，注意不要按对象！");
+                first=false;
+            }
             System.out.println(ShapeAttribute.getTool());
         });
         setIcon("/bottom_align.png",bottomAlignBtn);
         bottomAlignBtn.setOnMouseClicked((e) -> {
             ShapeAttribute.setTool("BOTTOM");
+            if(!first)
+            {System.out.println("开始选择要操作的对象！");
+                first = true;
+            }
+            else
+            {
+                System.out.println("选择好了，请再按一次白板开始对齐，注意不要按对象！");
+                first=false;
+            }
             System.out.println(ShapeAttribute.getTool());
         });
         setIcon("/center_ver.png",centerVerBtn);
         centerVerBtn.setOnMouseClicked((e) -> {
             ShapeAttribute.setTool("CENVER");
+            if(!first)
+            {System.out.println("开始选择要操作的对象！");
+                first = true;
+            }
+            else
+            {
+                System.out.println("选择好了，请再按一次白板开始对齐，注意不要按对象！");
+                first=false;
+            }
             System.out.println(ShapeAttribute.getTool());
         });
         setIcon("/tag.png",tagBtn);

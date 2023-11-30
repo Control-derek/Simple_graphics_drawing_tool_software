@@ -1,25 +1,28 @@
 package App;
 
-import File.FileCopy;
-import File.FileOpen;
 import File.FilePaste;
 import Shape.*;
 import UndoManager.RecordStack;
+import Toolbar.ToolBarController;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.PathElement;
 import javafx.scene.text.Font;
+
+import java.util.ArrayList;
 
 /**
  * @see Controller
@@ -28,7 +31,8 @@ import javafx.scene.text.Font;
  * @author derek
  */
 public class Controller {
-
+    public final int start_i = 1;
+    public int i = start_i;
     /**
      * javafx group，用于存放图形
      */
@@ -91,6 +95,15 @@ public class Controller {
      */
     double SecondaryX;
     double SecondaryY;
+    public static ArrayList<Integer> dynamicArray = new ArrayList<>();
+    public static double maxx=-9999;
+    public static double minx=999;
+    public static double maxy=-9999;
+    public static double miny=999;
+    public static void ADDindex(int index)
+    {
+        dynamicArray.add(index);
+    }
 
     public Controller() {
     }
@@ -150,7 +163,6 @@ public class Controller {
      */
     @FXML
     private void canvasOnMousePressed(MouseEvent event) {
-
         if (first && event.getButton().equals(MouseButton.SECONDARY) ) {  // 鼠标右键 展开菜单
             for (Node node : group.getChildren()) {  // 遍历所有子节点 跟节点的菜单不同时出现
                 if (node instanceof MyCanvas) continue;
@@ -172,7 +184,7 @@ public class Controller {
             switch (content) {
                 case "LINE":
                     //path = new Path();
-                    line = new MyLine();
+                    line = new MyLine(i++);
 //                    line.setPasteMenu(contextMenu);
                     line.paint(startX, startY, startX, startY);
                     // 打个标找着容易
@@ -183,7 +195,7 @@ public class Controller {
                 case "CURVE":
                     if (!MyQuadCurve.isChangeControl()) {
 //                        System.out.println("Group1");
-                        quadCurve = new MyQuadCurve();
+                        quadCurve = new MyQuadCurve(i++);
                         quadCurve.paint(startX, startY, startX, startY);
                         group.getChildren().addAll(quadCurve);
                         RecordStack.nodeCreate(quadCurve);
@@ -191,20 +203,20 @@ public class Controller {
                     break;
                 case "RECT":
                     //path = new Path();
-                    rectangle = new MyRectangle();
+                    rectangle = new MyRectangle(i++);
                     rectangle.paint(startX, startY, startX, startY);
                     group.getChildren().addAll(rectangle);
                     RecordStack.nodeCreate(rectangle);
                     break;
                 case "OVAL":
                 case "CIRCLE":
-                    ellipse = new MyEllipse();
+                    ellipse = new MyEllipse(i++);
                     ellipse.paint(startX, startY, startX, startY, false);
                     group.getChildren().addAll(ellipse);
                     RecordStack.nodeCreate(ellipse);
                     break;
                 case "PEN":
-                    path = new MyPath(startX, startY);
+                    path = new MyPath(startX, startY, i++);
                     group.getChildren().addAll(path);
                     RecordStack.nodeCreate(path);
                     break;
@@ -229,6 +241,375 @@ public class Controller {
                     gc.setStroke(Color.WHITE);
                     gc.setLineWidth(ShapeAttribute.getSize());
                     RecordStack.nodeCreate(canvas);
+                    break;
+                case"LEFT" :
+                    if(ToolBarController.first)
+                    {
+
+
+
+                    }
+                    else {
+
+                        for(int i = 0; i < dynamicArray.size(); i++)
+                        {
+                            Object o=group.getChildren().get(dynamicArray.get(i));
+                            System.out.println("Controller.dynamicArray.size()" + Controller.dynamicArray.size());
+//                            System.out.println("Object" + o.toString());
+                            if(o instanceof MyLine)
+                            {
+                                System.out.println("Minx" + ((MyLine) o).Minx);
+                                System.out.println("minx" + minx);
+                                double trans=((MyLine) o).Minx-minx;
+                                System.out.println("trans" + trans);
+                                RecordStack.nodeChange((MyLine)o, ((MyLine)o).clone());
+                                ((MyLine) o).paint(((MyLine) o).getStartX()-trans,((MyLine) o).getStartY(),((MyLine) o).getEndX()-trans,((MyLine) o).getEndY());
+                            }
+                            if(o instanceof MyRectangle)
+                            {
+                                double trans=((MyRectangle) o).Minx-minx;
+                                RecordStack.nodeChange((MyRectangle)o,((MyRectangle)o).clone());
+                                ((MyRectangle)o).paint(((MyRectangle)o).getX()-trans,((MyRectangle)o).getY(),((MyRectangle)o).getWidth()+((MyRectangle)o).getX()-trans,((MyRectangle)o).getHeight()+((MyRectangle)o).getY());
+                            }
+                            if(o instanceof MyEllipse)
+                            {
+                                double trans=((MyEllipse) o).Minx-minx;
+                                RecordStack.nodeChange((MyEllipse)o,((MyEllipse)o).clone());
+                                ((MyEllipse) o).paint(((MyEllipse) o).getCenterX()-((MyEllipse) o).getRadiusX()-trans,((MyEllipse) o).getCenterY()-((MyEllipse) o).getRadiusY(),((MyEllipse) o).getCenterX()+((MyEllipse) o).getRadiusX()-trans,((MyEllipse) o).getCenterY()+((MyEllipse) o).getRadiusY(),false);
+                            }
+                            if(o instanceof MyQuadCurve)
+                            {
+                                double trans=((MyQuadCurve) o).Minx-minx;
+                                RecordStack.nodeChange((MyQuadCurve)o,((MyQuadCurve)o).clone());
+                                ((MyQuadCurve) o).setControlX(((MyQuadCurve) o).getControlX()-trans);
+                                ((MyQuadCurve) o).setStartX(((MyQuadCurve) o).getStartX()-trans);
+                                ((MyQuadCurve) o).setEndX(((MyQuadCurve) o).getEndX()-trans);
+                            }
+                            if(o instanceof MyPath)
+                            {
+                                System.out.println(((MyPath) o).Maxx+" "+((MyPath) o).Minx);
+                                double trans=((MyPath) o).Minx-minx;
+                                RecordStack.nodeChange((MyPath)o,((MyPath)o).clone());
+
+                                ((MoveTo)((MyPath) o).getElements().get(0)).setX(((MoveTo)((MyPath) o).getElements().get(0)).getX()-trans);
+                                for(int j=1;j< ((MyPath) o).getElements().size();j++)
+                                {
+                                    ((LineTo)((MyPath) o).getElements().get(j)).setX(((LineTo)((MyPath) o).getElements().get(j)).getX()-trans);
+                                    ((MyPath) o).Minx=((MyPath) o).Minx-trans;
+                                    ((MyPath) o).Minx=((MyPath) o).Maxx-trans;
+                                }
+                            }
+                        }
+                        dynamicArray.clear();//最好设一个集合，去重
+                        maxx=maxy=-999;
+                        minx=miny=999;
+                    }
+                    break;
+                case"RIGHT":
+                    if(ToolBarController.first)
+                    {
+
+                        System.out.println("heelo");
+
+                    }
+                    else {
+                        System.out.println("helloright");
+                        for(int i = 0; i < dynamicArray.size(); i++)
+                        {
+                            Object o=group.getChildren().get(dynamicArray.get(i));
+                            System.out.println("Controller.dynamicArray.size()" + Controller.dynamicArray.size());
+//                            System.out.println("Object" + o.toString());
+                            if(o instanceof MyLine)
+                            {
+                                double trans=maxx-((MyLine) o).Maxx;
+                                System.out.println("trans" + trans);
+                                RecordStack.nodeChange((MyLine)o, ((MyLine)o).clone());
+                                ((MyLine) o).paint(((MyLine) o).getStartX()+trans,((MyLine) o).getStartY(),((MyLine) o).getEndX()+trans,((MyLine) o).getEndY());
+                            }
+                            if(o instanceof MyRectangle)
+                            {
+                                double trans=maxx-((MyRectangle) o).Maxx;
+                                RecordStack.nodeChange((MyRectangle)o,((MyRectangle)o).clone());
+                                ((MyRectangle)o).paint(((MyRectangle)o).getX()+trans,((MyRectangle)o).getY(),((MyRectangle)o).getWidth()+((MyRectangle)o).getX()+trans,((MyRectangle)o).getHeight()+((MyRectangle)o).getY());
+                            }
+                            if(o instanceof MyEllipse)
+                            {
+                                double trans=maxx-((MyEllipse) o).Maxx;
+                                RecordStack.nodeChange((MyEllipse)o,((MyEllipse)o).clone());
+                                ((MyEllipse) o).paint(((MyEllipse) o).getCenterX()-((MyEllipse) o).getRadiusX()+trans,((MyEllipse) o).getCenterY()-((MyEllipse) o).getRadiusY(),((MyEllipse) o).getCenterX()+((MyEllipse) o).getRadiusX()+trans,((MyEllipse) o).getCenterY()+((MyEllipse) o).getRadiusY(),false);
+                            }
+                            if(o instanceof MyQuadCurve)
+                            {
+                                double trans=maxx-((MyQuadCurve) o).Maxx;
+                                RecordStack.nodeChange((MyQuadCurve)o,((MyQuadCurve)o).clone());
+                                ((MyQuadCurve) o).setControlX(((MyQuadCurve) o).getControlX()+trans);
+                                ((MyQuadCurve) o).setStartX(((MyQuadCurve) o).getStartX()+trans);
+                                ((MyQuadCurve) o).setEndX(((MyQuadCurve) o).getEndX()+trans);
+                            }
+                            if(o instanceof MyPath)
+                            {
+                                double trans=maxx-((MyPath) o).Maxx;
+                                RecordStack.nodeChange((MyPath)o,((MyPath)o).clone());
+                                ((MoveTo)((MyPath) o).getElements().get(0)).setX(((MoveTo)((MyPath) o).getElements().get(0)).getX()+trans);
+                                for(int j=1;j< ((MyPath) o).getElements().size();j++)
+                                {
+                                    ((LineTo)((MyPath) o).getElements().get(j)).setX(((LineTo)((MyPath) o).getElements().get(j)).getX()+trans);
+                                    ((MyPath) o).Maxx=((MyPath) o).Maxx+trans;
+                                    ((MyPath) o).Minx=((MyPath) o).Minx+trans;
+                                }
+
+                            }
+                        }
+                        dynamicArray.clear();//最好设一个集合，去重
+                        maxx=maxy=-999;
+                        minx=miny=999;
+                    }
+                    break;
+                case"CENHOR":
+                    if(ToolBarController.first)
+                    {
+
+
+
+                    }
+                    else {
+                        double mid=(maxx+minx)/2;
+                        for(int i = 0; i < dynamicArray.size(); i++)
+                        {
+                            Object o=group.getChildren().get(dynamicArray.get(i));
+                            System.out.println("Controller.dynamicArray.size()" + Controller.dynamicArray.size());
+//                            System.out.println("Object" + o.toString());
+                            if(o instanceof MyLine)
+                            {
+                                double trans=(((MyLine) o).Minx+((MyLine) o).Maxx)/2-mid;
+                                System.out.println("trans" + trans);
+                                RecordStack.nodeChange((MyLine)o, ((MyLine)o).clone());
+                                ((MyLine) o).paint(((MyLine) o).getStartX()-trans,((MyLine) o).getStartY(),((MyLine) o).getEndX()-trans,((MyLine) o).getEndY());
+                            }
+                            if(o instanceof MyRectangle)
+                            {
+                                double trans=(((MyRectangle) o).Minx+((MyRectangle) o).Maxx)/2-mid;
+                                RecordStack.nodeChange((MyRectangle)o,((MyRectangle)o).clone());
+                                ((MyRectangle)o).paint(((MyRectangle)o).getX()-trans,((MyRectangle)o).getY(),((MyRectangle)o).getWidth()+((MyRectangle)o).getX()-trans,((MyRectangle)o).getHeight()+((MyRectangle)o).getY());
+                            }
+                            if(o instanceof MyEllipse)
+                            {
+                                double trans=(((MyEllipse) o).Minx+((MyEllipse) o).Maxx)/2-mid;
+                                RecordStack.nodeChange((MyEllipse)o,((MyEllipse)o).clone());
+                                ((MyEllipse) o).paint(((MyEllipse) o).getCenterX()-((MyEllipse) o).getRadiusX()-trans,((MyEllipse) o).getCenterY()-((MyEllipse) o).getRadiusY(),((MyEllipse) o).getCenterX()+((MyEllipse) o).getRadiusX()-trans,((MyEllipse) o).getCenterY()+((MyEllipse) o).getRadiusY(),false);
+                            }
+                            if(o instanceof MyQuadCurve)
+                            {
+                                double trans=(((MyPath) o).Minx+((MyPath) o).Maxx)/2-mid;
+                                RecordStack.nodeChange((MyQuadCurve)o,((MyQuadCurve)o).clone());
+                                ((MyQuadCurve) o).setControlX(((MyQuadCurve) o).getControlX()-trans);
+                                ((MyQuadCurve) o).setStartX(((MyQuadCurve) o).getStartX()-trans);
+                                ((MyQuadCurve) o).setEndX(((MyQuadCurve) o).getEndX()-trans);
+                            }
+                            if(o instanceof MyPath)
+                            {
+                                double trans=(((MyPath) o).Minx+((MyPath) o).Maxx)/2-mid;
+                                RecordStack.nodeChange((MyPath)o,((MyPath)o).clone());
+                                ((MoveTo)((MyPath) o).getElements().get(0)).setX(((MoveTo)((MyPath) o).getElements().get(0)).getX()-trans);
+                                for(int j=1;j< ((MyPath) o).getElements().size();j++)
+                                {
+                                    ((LineTo)((MyPath) o).getElements().get(j)).setX(((LineTo)((MyPath) o).getElements().get(j)).getX()-trans);
+                                    ((MyPath) o).Minx=((MyPath) o).Minx-trans;
+                                    ((MyPath) o).Minx=((MyPath) o).Maxx-trans;
+                                }
+
+                            }
+                        }
+                        maxx=maxy=-999;
+                        minx=miny=999;
+                        dynamicArray.clear();//最好设一个集合，去重
+
+                    }
+                    break;
+                case"TOP":
+                    if(ToolBarController.first)
+                    {
+
+
+
+                    }
+                    else {
+
+                        for(int i = 0; i < dynamicArray.size(); i++)
+                        {
+                            Object o=group.getChildren().get(dynamicArray.get(i));
+                            System.out.println("Controller.dynamicArray.size()" + Controller.dynamicArray.size());
+//                            System.out.println("Object" + o.toString());
+                            if(o instanceof MyLine)
+                            {
+                                double trans=((MyLine) o).Miny-miny;
+                                System.out.println("trans" + trans);
+                                RecordStack.nodeChange((MyLine)o, ((MyLine)o).clone());
+                                ((MyLine) o).paint(((MyLine) o).getStartX(),((MyLine) o).getStartY()-trans,((MyLine) o).getEndX(),((MyLine) o).getEndY()-trans);
+                            }
+                            if(o instanceof MyRectangle)
+                            {
+                                double trans=((MyRectangle) o).Miny-miny;
+                                RecordStack.nodeChange((MyRectangle)o,((MyRectangle)o).clone());
+                                ((MyRectangle)o).paint(((MyRectangle)o).getX(),((MyRectangle)o).getY()-trans,((MyRectangle)o).getWidth()+((MyRectangle)o).getX(),((MyRectangle)o).getHeight()+((MyRectangle)o).getY()-trans);
+                            }
+                            if(o instanceof MyEllipse)
+                            {
+                                double trans=((MyEllipse) o).Miny-miny;
+                                RecordStack.nodeChange((MyEllipse)o,((MyEllipse)o).clone());
+                                ((MyEllipse) o).paint(((MyEllipse) o).getCenterX()-((MyEllipse) o).getRadiusX(),((MyEllipse) o).getCenterY()-((MyEllipse) o).getRadiusY()-trans,((MyEllipse) o).getCenterX()+((MyEllipse) o).getRadiusX(),((MyEllipse) o).getCenterY()+((MyEllipse) o).getRadiusY()-trans,false);
+                            }
+                            if(o instanceof MyQuadCurve)
+                            {
+                                double trans=((MyQuadCurve) o).Miny-miny;
+                                RecordStack.nodeChange((MyQuadCurve)o,((MyQuadCurve)o).clone());
+                                ((MyQuadCurve) o).setControlX(((MyQuadCurve) o).getControlX()-trans);
+                                ((MyQuadCurve) o).setStartX(((MyQuadCurve) o).getStartX()-trans);
+                                ((MyQuadCurve) o).setEndX(((MyQuadCurve) o).getEndX()-trans);
+                            }
+                            if(o instanceof MyPath)
+                            {
+                                double trans=((MyPath) o).Miny-miny;
+                                RecordStack.nodeChange((MyPath)o,((MyPath)o).clone());
+                                ((MoveTo)((MyPath) o).getElements().get(0)).setY(((MoveTo)((MyPath) o).getElements().get(0)).getY()-trans);
+                                for(int j=1;j< ((MyPath) o).getElements().size();j++)
+                                {
+                                    ((LineTo)((MyPath) o).getElements().get(j)).setY(((LineTo)((MyPath) o).getElements().get(j)).getY()-trans);
+                                    ((MyPath) o).Miny=((MyPath) o).Miny-trans;
+                                    ((MyPath) o).Miny=((MyPath) o).Maxy-trans;
+                                }
+
+                            }
+                        }
+                        maxx=maxy=-999;
+                        minx=miny=999;
+                        dynamicArray.clear();//最好设一个集合，去重
+
+                    }
+                    break;
+                case"BOTTOM":
+                    if(ToolBarController.first)
+                    {
+
+
+
+                    }
+                    else {
+
+                        for(int i = 0; i < dynamicArray.size(); i++)
+                        {
+                            System.out.println(dynamicArray.get(i));
+                            System.out.println(maxy);
+                            Object o=group.getChildren().get(dynamicArray.get(i));
+                            System.out.println("Controller.dynamicArray.size()" + Controller.dynamicArray.size());
+//                            System.out.println("Object" + o.toString());
+                            if(o instanceof MyLine)
+                            {
+                                double trans=maxy-((MyLine) o).Maxy;
+                                System.out.println("trans" + trans);
+                                RecordStack.nodeChange((MyLine)o, ((MyLine)o).clone());
+                                ((MyLine) o).paint(((MyLine) o).getStartX(),((MyLine) o).getStartY()+trans,((MyLine) o).getEndX(),((MyLine) o).getEndY()+trans);
+                            }
+                            if(o instanceof MyRectangle)
+                            {
+                                double trans=maxy-((MyRectangle) o).Maxy;
+                                RecordStack.nodeChange((MyRectangle)o,((MyRectangle)o).clone());
+                                ((MyRectangle)o).paint(((MyRectangle)o).getX(),((MyRectangle)o).getY()+trans,((MyRectangle)o).getWidth()+((MyRectangle)o).getX(),((MyRectangle)o).getHeight()+((MyRectangle)o).getY()+trans);
+                            }
+                            if(o instanceof MyEllipse)
+                            {
+                                double trans=maxy-((MyEllipse) o).Maxy;
+                                RecordStack.nodeChange((MyEllipse)o,((MyEllipse)o).clone());
+                                ((MyEllipse) o).paint(((MyEllipse) o).getCenterX()-((MyEllipse) o).getRadiusX(),((MyEllipse) o).getCenterY()-((MyEllipse) o).getRadiusY()+trans,((MyEllipse) o).getCenterX()+((MyEllipse) o).getRadiusX(),((MyEllipse) o).getCenterY()+((MyEllipse) o).getRadiusY()+trans,false);
+                            }
+                            if(o instanceof MyQuadCurve)
+                            {
+                                double trans=((MyQuadCurve) o).Minx-minx;
+                                RecordStack.nodeChange((MyQuadCurve)o,((MyQuadCurve)o).clone());
+                                ((MyQuadCurve) o).setControlX(((MyQuadCurve) o).getControlX()-trans);
+                                ((MyQuadCurve) o).setStartX(((MyQuadCurve) o).getStartX()-trans);
+                                ((MyQuadCurve) o).setEndX(((MyQuadCurve) o).getEndX()-trans);
+                            }
+                            if(o instanceof MyPath)
+                            {
+                                double trans=((MyPath) o).Maxy-maxy;
+                                RecordStack.nodeChange((MyPath)o,((MyPath)o).clone());
+                                ((MoveTo)((MyPath) o).getElements().get(0)).setY(((MoveTo)((MyPath) o).getElements().get(0)).getY()-trans);
+                                for(int j=1;j< ((MyPath) o).getElements().size();j++)
+                                {
+                                    ((LineTo)((MyPath) o).getElements().get(j)).setY(((LineTo)((MyPath) o).getElements().get(j)).getY()-trans);
+                                    ((MyPath) o).Miny=((MyPath) o).Miny-trans;
+                                    ((MyPath) o).Miny=((MyPath) o).Maxy-trans;
+                                }
+
+                            }
+                        }
+                        dynamicArray.clear();//最好设一个集合，去重
+                        maxx=maxy=-999;
+                        minx=miny=999;
+                    }
+                    break;
+                case"CENVER":
+                    if(ToolBarController.first)
+                    {
+
+
+
+                    }
+                    else {
+                        double mid=(maxy+miny)/2;
+                        for(int i = 0; i < dynamicArray.size(); i++)
+                        {
+                            Object o=group.getChildren().get(dynamicArray.get(i));
+                            System.out.println("Controller.dynamicArray.size()" + Controller.dynamicArray.size());
+//                            System.out.println("Object" + o.toString());
+                            if(o instanceof MyLine)
+                            {
+                                double trans=(((MyLine) o).Miny+((MyLine) o).Maxy)/2-mid;
+                                System.out.println("trans" + trans);
+                                RecordStack.nodeChange((MyLine)o, ((MyLine)o).clone());
+                                ((MyLine) o).paint(((MyLine) o).getStartX(),((MyLine) o).getStartY()-trans,((MyLine) o).getEndX(),((MyLine) o).getEndY()-trans);
+                            }
+                            if(o instanceof MyRectangle)
+                            {
+                                double trans=(((MyRectangle) o).Miny+((MyRectangle) o).Maxy)/2-mid;
+                                RecordStack.nodeChange((MyRectangle)o,((MyRectangle)o).clone());
+                                ((MyRectangle)o).paint(((MyRectangle)o).getX(),((MyRectangle)o).getY()-trans,((MyRectangle)o).getWidth()+((MyRectangle)o).getX(),((MyRectangle)o).getHeight()+((MyRectangle)o).getY()-trans);
+                            }
+                            if(o instanceof MyEllipse)
+                            {
+                                double trans=(((MyEllipse) o).Miny+((MyEllipse) o).Maxy)/2-mid;
+                                RecordStack.nodeChange((MyEllipse)o,((MyEllipse)o).clone());
+                                ((MyEllipse) o).paint(((MyEllipse) o).getCenterX()-((MyEllipse) o).getRadiusX(),((MyEllipse) o).getCenterY()-((MyEllipse) o).getRadiusY()-trans,((MyEllipse) o).getCenterX()+((MyEllipse) o).getRadiusX(),((MyEllipse) o).getCenterY()+((MyEllipse) o).getRadiusY()-trans,false);
+                            }
+                            if(o instanceof MyQuadCurve)
+                            {
+                                double trans=((MyQuadCurve) o).Miny-miny;
+                                RecordStack.nodeChange((MyQuadCurve)o,((MyQuadCurve)o).clone());
+                                ((MyQuadCurve) o).setControlX(((MyQuadCurve) o).getControlX()-trans);
+                                ((MyQuadCurve) o).setStartX(((MyQuadCurve) o).getStartX()-trans);
+                                ((MyQuadCurve) o).setEndX(((MyQuadCurve) o).getEndX()-trans);
+                            }
+                            if(o instanceof MyPath)
+                            {
+                                double trans=(((MyPath) o).Miny+((MyPath) o).Maxy)/2-mid;
+                                RecordStack.nodeChange((MyPath)o,((MyPath)o).clone());
+                                ((MoveTo)((MyPath) o).getElements().get(0)).setY(((MoveTo)((MyPath) o).getElements().get(0)).getY()-trans);
+                                for(int j=1;j< ((MyPath) o).getElements().size();j++)
+                                {
+                                    ((LineTo)((MyPath) o).getElements().get(j)).setY(((LineTo)((MyPath) o).getElements().get(j)).getY()-trans);
+                                    ((MyPath) o).Miny=((MyPath) o).Miny-trans;
+                                    ((MyPath) o).Miny=((MyPath) o).Maxy-trans;
+                                }
+
+
+                            }
+                        }
+                        maxx=maxy=-999;
+                        minx=miny=999;
+                        dynamicArray.clear();//最好设一个集合，去重
+
+                    }
                     break;
                 case "BARREL":
                     break;
